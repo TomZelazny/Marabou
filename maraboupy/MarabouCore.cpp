@@ -25,7 +25,9 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include "AcasParser.h"
+#include "CommonError.h"
 #include "DnCManager.h"
+#include "DisjunctionConstraint.h"
 #include "Engine.h"
 #include "FloatUtils.h"
 #include "InputQuery.h"
@@ -136,19 +138,63 @@ bool createInputQuery(InputQuery &inputQuery, std::string networkFilePath, std::
   return true;
 }
 
+void addDisjunctionConstraint(InputQuery& ipq, const std::list<std::list<Equation>>
+                              &disjuncts ){
+    List<PiecewiseLinearCaseSplit> disjunctList;
+    for ( const auto &disjunct : disjuncts )
+    {
+        PiecewiseLinearCaseSplit split;
+        for ( const auto &eq : disjunct )
+        {
+            if ( eq._addends.size() == 1 )
+            {
+                // Add bounds as tightenings
+                unsigned var = eq._addends.front()._variable;
+                unsigned coeff = eq._addends.front()._coefficient;
+                if ( coeff == 0 )
+                    throw CommonError( CommonError::DIVISION_BY_ZERO,
+                                       "AddDisjunctionConstraint: zero coefficient encountered" );
+                double scalar = eq._scalar / coeff;
+                Equation::EquationType type = eq._type;
+
+                if ( type == Equation::EQ )
+                {
+                    split.storeBoundTightening( Tightening( var, scalar, Tightening::LB ) );
+                    split.storeBoundTightening( Tightening( var, scalar, Tightening::UB ) );
+                }
+                else if ( type == Equation::GE || coeff < 0 )
+                    split.storeBoundTightening( Tightening( var, scalar, Tightening::LB ) );
+                else if ( type == Equation::LE || coeff < 0 )
+                    split.storeBoundTightening( Tightening( var, scalar, Tightening::UB ) );
+            }
+            else
+            {
+                split.addEquation( eq );
+            }
+        }
+        disjunctList.append( split );
+    }
+    ipq.addPiecewiseLinearConstraint(new DisjunctionConstraint(disjunctList));
+}
+
 struct MarabouOptions {
     MarabouOptions()
         : _snc( Options::get()->getBool( Options::DNC_MODE ) )
         , _restoreTreeStates( Options::get()->getBool( Options::RESTORE_TREE_STATES ) )
+        , _solveWithMILP( Options::get()->getBool( Options::SOLVE_WITH_MILP ) )
+        , _dumpBounds( Options::get()->getBool( Options::DUMP_BOUNDS ) )
         , _numWorkers( Options::get()->getInt( Options::NUM_WORKERS ) )
         , _initialTimeout( Options::get()->getInt( Options::INITIAL_TIMEOUT ) )
         , _initialDivides( Options::get()->getInt( Options::NUM_INITIAL_DIVIDES ) )
         , _onlineDivides( Options::get()->getInt( Options::NUM_ONLINE_DIVIDES ) )
         , _verbosity( Options::get()->getInt( Options::VERBOSITY ) )
         , _timeoutInSeconds( Options::get()->getInt( Options::TIMEOUT ) )
+        , _splitThreshold( Options::get()->getInt( Options::CONSTRAINT_VIOLATION_THRESHOLD ) )
         , _timeoutFactor( Options::get()->getFloat( Options::TIMEOUT_FACTOR ) )
+        , _preprocessorBoundTolerance( Options::get()->getFloat( Options::PREPROCESSOR_BOUND_TOLERANCE ) )
         , _splittingStrategyString( Options::get()->getString( Options::SPLITTING_STRATEGY ).ascii() )
         , _sncSplittingStrategyString( Options::get()->getString( Options::SNC_SPLITTING_STRATEGY ).ascii() )
+        , _tighteningStrategyString( Options::get()->getString( Options::SYMBOLIC_BOUND_TIGHTENING_TYPE ).ascii() )
     {};
 
   void setOptions()
@@ -156,6 +202,8 @@ struct MarabouOptions {
     // Bool options
     Options::get()->setBool( Options::DNC_MODE, _snc );
     Options::get()->setBool( Options::RESTORE_TREE_STATES, _restoreTreeStates );
+    Options::get()->setBool( Options::SOLVE_WITH_MILP, _solveWithMILP );
+    Options::get()->setBool( Options::DUMP_BOUNDS, _dumpBounds );
 
     // int options
     Options::get()->setInt( Options::NUM_WORKERS, _numWorkers );
@@ -164,26 +212,34 @@ struct MarabouOptions {
     Options::get()->setInt( Options::NUM_ONLINE_DIVIDES, _onlineDivides );
     Options::get()->setInt( Options::VERBOSITY, _verbosity );
     Options::get()->setInt( Options::TIMEOUT, _timeoutInSeconds );
+    Options::get()->setInt( Options::CONSTRAINT_VIOLATION_THRESHOLD, _splitThreshold );
 
     // float options
     Options::get()->setFloat( Options::TIMEOUT_FACTOR, _timeoutFactor );
+    Options::get()->setFloat( Options::PREPROCESSOR_BOUND_TOLERANCE, _preprocessorBoundTolerance );
 
     // string options
     Options::get()->setString( Options::SPLITTING_STRATEGY, _splittingStrategyString );
     Options::get()->setString( Options::SNC_SPLITTING_STRATEGY, _sncSplittingStrategyString );
+    Options::get()->setString( Options::SYMBOLIC_BOUND_TIGHTENING_TYPE, _tighteningStrategyString );
   }
 
     bool _snc;
     bool _restoreTreeStates;
+    bool _solveWithMILP;
+    bool _dumpBounds;
     unsigned _numWorkers;
     unsigned _initialTimeout;
     unsigned _initialDivides;
     unsigned _onlineDivides;
     unsigned _verbosity;
     unsigned _timeoutInSeconds;
+    unsigned _splitThreshold;
     float _timeoutFactor;
+    float _preprocessorBoundTolerance;
     std::string _splittingStrategyString;
     std::string _sncSplittingStrategyString;
+    std::string _tighteningStrategyString;
 };
 
 /* The default parameters here are just for readability, you should specify
@@ -330,6 +386,14 @@ PYBIND11_MODULE(MarabouCore, m) {
             f (int): Output variable
         )pbdoc",
         py::arg("inputQuery"), py::arg("b"), py::arg("f"));
+    m.def("addDisjunctionConstraint", &addDisjunctionConstraint, R"pbdoc(
+        Add a disjunction constraint to the InputQuery
+
+        Args:
+            inputQuery (:class:`~maraboupy.MarabouCore.InputQuery`): Marabou input query to be solved
+            disjuncts (list of pairs): A list of disjuncts. Each disjunct is represented by a pair: a list of bounds, and a list of (in)equalities.
+        )pbdoc",
+          py::arg("inputQuery"), py::arg("disjuncts"));
     py::class_<InputQuery>(m, "InputQuery")
         .def(py::init())
         .def("setUpperBound", &InputQuery::setUpperBound)
@@ -355,11 +419,16 @@ PYBIND11_MODULE(MarabouCore, m) {
         .def_readwrite("_onlineDivides", &MarabouOptions::_onlineDivides)
         .def_readwrite("_timeoutInSeconds", &MarabouOptions::_timeoutInSeconds)
         .def_readwrite("_timeoutFactor", &MarabouOptions::_timeoutFactor)
+        .def_readwrite("_preprocessorBoundTolerance", &MarabouOptions::_preprocessorBoundTolerance)
         .def_readwrite("_verbosity", &MarabouOptions::_verbosity)
+        .def_readwrite("_splitThreshold", &MarabouOptions::_splitThreshold)
         .def_readwrite("_snc", &MarabouOptions::_snc)
+        .def_readwrite("_solveWithMILP", &MarabouOptions::_solveWithMILP)
+        .def_readwrite("_dumpBounds", &MarabouOptions::_dumpBounds)
         .def_readwrite("_restoreTreeStates", &MarabouOptions::_restoreTreeStates)
         .def_readwrite("_splittingStrategy", &MarabouOptions::_splittingStrategyString)
-        .def_readwrite("_sncSplittingStrategy", &MarabouOptions::_sncSplittingStrategyString);
+        .def_readwrite("_sncSplittingStrategy", &MarabouOptions::_sncSplittingStrategyString)
+        .def_readwrite("_tighteningStrategy", &MarabouOptions::_tighteningStrategyString);
     py::enum_<PiecewiseLinearFunctionType>(m, "PiecewiseLinearFunctionType")
         .value("ReLU", PiecewiseLinearFunctionType::RELU)
         .value("AbsoluteValue", PiecewiseLinearFunctionType::ABSOLUTE_VALUE)

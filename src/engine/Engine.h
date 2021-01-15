@@ -27,14 +27,17 @@
 #include "DivideStrategy.h"
 #include "SnCDivideStrategy.h"
 #include "GlobalConfiguration.h"
+#include "GurobiWrapper.h"
 #include "IEngine.h"
 #include "InputQuery.h"
 #include "Map.h"
+#include "MILPEncoder.h"
 #include "PrecisionRestorer.h"
 #include "Preprocessor.h"
 #include "SignalHandler.h"
 #include "SmtCore.h"
 #include "Statistics.h"
+#include "SymbolicBoundTighteningType.h"
 
 #include <atomic>
 
@@ -332,9 +335,29 @@ private:
     DivideStrategy _splittingStrategy;
 
     /*
+      Type of symbolic bound tightening
+    */
+    SymbolicBoundTighteningType _symbolicBoundTighteningType;
+
+    /*
       Disjunction that is used for splitting but doesn't exist in the beginning
     */
     std::unique_ptr<PiecewiseLinearConstraint> _disjunctionForSplitting;
+
+    /*
+      Solve the query with MILP encoding
+    */
+    bool _solveWithMILP;
+
+    /*
+      GurobiWrapper object
+    */
+    std::unique_ptr<GurobiWrapper> _gurobi;
+
+    /*
+      MILPEncoder
+    */
+    std::unique_ptr<MILPEncoder> _milpEncoder;
 
     /*
       Perform a simplex step: compute the cost function, pick the
@@ -445,6 +468,8 @@ private:
     */
     bool attemptToMergeVariables( unsigned x1, unsigned x2 );
 
+    void performDeepPolyAnalysis();
+
     /*
       Perform a round of symbolic bound tightening, taking into
       account the current state of the piecewise linear constraints.
@@ -507,6 +532,15 @@ private:
     */
     PiecewiseLinearConstraint *pickSplitPLConstraintBasedOnIntervalWidth();
 
+    /*
+      Solve the input query with a MILP solver (Gurobi)
+    */
+    bool solveWithMILPEncoding( unsigned timeoutInSeconds );
+
+    /*
+      Extract the satisfying assignment from the MILP solver
+    */
+    void extractSolutionFromGurobi( InputQuery &inputQuery );
 };
 
 #endif // __Engine_h__

@@ -70,6 +70,8 @@ class MaxConstraint : public PiecewiseLinearConstraint
       Get the list of variables participating in this constraint.
     */
     List<unsigned> getParticipatingVariables() const;
+    List<unsigned> getElements() const;
+    unsigned getF() const;
 
     /*
       Returns true iff the assignment satisfies the constraint
@@ -134,6 +136,7 @@ class MaxConstraint : public PiecewiseLinearConstraint
  private:
     unsigned _f;
     Set<unsigned> _elements;
+    Set<unsigned> _initialElements;
 
     unsigned _maxIndex;
     bool _maxIndexSet;
