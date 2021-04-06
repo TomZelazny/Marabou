@@ -5,7 +5,7 @@ now opt to use deep neural networks (DNNs) - machine learning models, created by
 training algorithms that generalize from a finite set of examples to previously
 unseen inputs. Consequently, there is a pressing need for tools and techniques
 for network analysis and certification. To help address that need, we present
-Marabou, a framework for verifying deep neural networks. 
+Marabou, a framework for verifying deep neural networks.
 
 Marabou is an SMT-based tool that can answer queries about a network’s
 properties by transforming these queries into constraint satisfaction problems.
@@ -19,7 +19,7 @@ A DNN verification query consists of two parts: (i) a neural network, and (ii) a
 property to be checked; and its result is either a formal guarantee that the
 network satisfies the property, or a concrete input for which the property is
 violated (a counter-example). There are several types of verification queries
-that Marabou can answer: 
+that Marabou can answer:
 * Reachability queries: if inputs is in a given range is the output
 guaranteed to be in some, typically safe, range.
 * Robustness queries: test whether there exist adversarial points around a given
@@ -28,11 +28,11 @@ guaranteed to be in some, typically safe, range.
 Marabou supports fully connected feed-forward and convolutional NNs with
 piece-wise linear activation functions, in the .nnet and TensorFlow formats.
 Properties can be specified using inequalites over input and output variables or
-via Python interface. 
+via Python interface.
 
 For more details about the features of Marabou check out the [tool
 paper](https://aisafety.stanford.edu/marabou/MarabouCAV2019.pdf) and the
-[slides](https://aisafety.stanford.edu/marabou/fomlas19.html). 
+[slides](https://aisafety.stanford.edu/marabou/fomlas19.html).
 
 For more information about the input formats please check the
 [wiki](https://github.com/NeuralNetworkVerification/Marabou/wiki/Marabou-Input-Formats).
@@ -63,7 +63,7 @@ Marabou can be built for Linux, MacOS, or Windows machines.
 To build marabou using CMake run:
 ```
 cd path/to/marabou/repo/folder
-mkdir build 
+mkdir build
 cd build
 cmake ..
 ```
@@ -88,7 +88,7 @@ cmake --build .
 The compiled binary will be in the *build* directory, named _Marabou_
 
 To run tests we use [ctest](https://cmake.org/cmake/help/v3.15/manual/ctest.1.html).
-The tests have labels according to level (unit/system/regress0/regress1...), and the code they are testing (engine/common etc...).  
+The tests have labels according to level (unit/system/regress0/regress1...), and the code they are testing (engine/common etc...).
 For example to run all unit tests execute in the build directory:
 ```
 ctest -L unit
@@ -96,10 +96,10 @@ ctest -L unit
 On every build we run the unit tests, and on every pull request we run unit,
 system, regress0 and regress1.
 
-Another option to build and run all of the tests is: 
+Another option to build and run all of the tests is:
 ```
 cd path/to/marabou/repo/folder
-mkdir build 
+mkdir build
 cd build
 cmake ..
 make check -j PROC_NUM
@@ -109,36 +109,36 @@ make check -j PROC_NUM
 We no longer provide Windows support. The below instructions apply to commits up
 to [0fc1d10](https://github.com/NeuralNetworkVerification/Marabou/commit/0fc1d10ff0e1859cf32abe54eb22f3ec0fec59f6).
 
-First, install Visual Studio 2017 or later and select the "Desktop development with C++" workload. 
+First, install Visual Studio 2017 or later and select the "Desktop development with C++" workload.
 Ensure that CMake is installed and added to your PATH.
 
 Open a command prompt and run:
 ```
 cd path\to\marabou\repo\folder
-mkdir build 
+mkdir build
 cd build
 cmake .. -G"Visual Studio 15 2017 Win64"
 cmake --build . --config Release
 ```
-This process builds Marabou using the generator "Visual Studio 15 2017 Win64". 
-For 32-bit machines, omit Win64. Other generators and older versions of Visual Studio can likely be used as well, 
+This process builds Marabou using the generator "Visual Studio 15 2017 Win64".
+For 32-bit machines, omit Win64. Other generators and older versions of Visual Studio can likely be used as well,
 but only "Visual Studio 15 2017 Win64" has been tested.
 
-The Marabou executable file will be written to the build/Release folder. To build in 
-Debug mode, simply run "cmake --build . --config Debug", and the executables will be 
+The Marabou executable file will be written to the build/Release folder. To build in
+Debug mode, simply run "cmake --build . --config Debug", and the executables will be
 written to build/Debug.
 
 ### Python API
 It may be useful to set up a Python virtual environment, see
 [here](https://docs.python.org/3/tutorial/venv.html) for more information.
 
-The python interface was tested only on versions >3.5 and >2.7. The build process prefers python3 but will work if there is only python 2.7 available. (To control the default change the DEFAULT_PYTHON_VERSION variable).  
-The Python interface requires *pybind11* (which is automatically downloaded). 
+The python interface was tested only on versions >3.5 and >2.7. The build process prefers python3 but will work if there is only python 2.7 available. (To control the default change the DEFAULT_PYTHON_VERSION variable).
+The Python interface requires *pybind11* (which is automatically downloaded).
 By default Marabou builds also the python API, the BUILD_PYTHON variable
 controls that.
-This process will produce the binary file and the shared library for the Python 
-API. The shared library will be in the maraboupy folder for Linux and MacOS. 
-On Windows, the shared library is written to a Release subfolder in maraboupy, 
+This process will produce the binary file and the shared library for the Python
+API. The shared library will be in the maraboupy folder for Linux and MacOS.
+On Windows, the shared library is written to a Release subfolder in maraboupy,
 so you will need to move the Release/\*pyd file to the maraboupy folder:
 ```
 cd path\to\marabou\repo\folder\maraboupy
@@ -150,7 +150,7 @@ Export maraboupy folder to Python and Jupyter paths:
 PYTHONPATH=PYTHONPATH:/path/to/marabou/folder
 JUPYTER_PATH=JUPYTER_PATH:/path/to/marabou/folder
 ```
-and Marabou is ready to be used from a Python or a Jupyter script. On Windows, 
+and Marabou is ready to be used from a Python or a Jupyter script. On Windows,
 edit your environmental variables so PYTHONPATH includes the marabou folder.
 
 #### Troubleshooting
@@ -165,7 +165,7 @@ edit your environmental variables so PYTHONPATH includes the marabou folder.
 
 Getting Started
 -----------------------------------------------------------------------------
-### To run Marabou from Command line 
+### To run Marabou from Command line
 After building Marabou the binary is located at *build/Marabou* (or *build\Release\Marabou.exe* for Windows). The
 repository contains sample networks and properties in the *resources* folder.
 For more information see [resources/README.md](resources/README.md).
@@ -174,13 +174,13 @@ To run Marabou, execute from the repo directory, for example:
 ```
 ./build/Marabou resources/nnet/acasxu/ACASXU_experimental_v2a_2_7.nnet resources/properties/acas_property_3.txt
 ```
-on Linux or MacOS, or 
+on Linux or MacOS, or
 ```
 build\Release\Marabou.exe resources\nnet\acasxu\ACASXU_experimental_v2a_2_7.nnet resources\properties\acas_property_3.txt
 ```
 on Windows.
 
-### Using Python interface 
+### Using Python interface
 Please see our [documentation](https://neuralnetworkverification.github.io/Marabou/)
 for the python interface, which contains examples, API documentation, and a developer's guide.
 
@@ -213,7 +213,7 @@ cd $INSTALL_DIR/gurobi911/linux64/src/build
 sudo make
 sudo cp libgurobi_c++.a ../../lib/
 ```
-Next it is recommended to add the following to the .bashrc (but not necessary) 
+Next it is recommended to add the following to the .bashrc (but not necessary)
 ```
 export GUROBI_HOME="/opt/gurobi911/linux64"
 export PATH="${PATH}:${GUROBI_HOME}/bin"
@@ -224,7 +224,7 @@ export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
 After installing Gurobi compile marabou as follows:
 ```
 cmake .. -DENABLE_GUROBI=ON
-cmake --build . 
+cmake --build .
 ```
 If you did not set the GUROBI_HOME environment variable, then use the following:
 ```
@@ -232,17 +232,17 @@ cmake .. -DENABLE_GUROBI=ON -DGUROBI_DIR=<PATH_TO_GUROBI>
 ```
 
 ### Tests
-We have three types of tests:  
+We have three types of tests:
 * unit tests - test specific small components, the tests are located alongside the code in a _tests_ folder (for example: _src/engine/tests_), to add a new set of tests, add a file named *Test_FILENAME* (where *FILENAME* is what you want to test), and add it to the CMakeLists.txt file (for example src/engine/CMakeLists.txt)
 * system tests - test an end to end use case but still have access to internal functionality. Those tests are located in _src/system_tests_. To add new set of tests create a file named *Test_FILENAME*, and add it also to _src/system_tests/CMakeLists.txt_.
-* regression tests - test end to end functionality thorugh the API, each test is defined by:  
-  * network_file - description of the "neural network" supporting nnet and mps formats (using the extension to decdie on the format)  
-  * property_file - optional, constraint on the input and output variables  
-  * expected_result - sat/unsat  
+* regression tests - test end to end functionality thorugh the API, each test is defined by:
+  * network_file - description of the "neural network" supporting nnet and mps formats (using the extension to decdie on the format)
+  * property_file - optional, constraint on the input and output variables
+  * expected_result - sat/unsat
 
-The tests are divided into 5 levels to allow variability in running time, to add a new regression tests: 
-  * add the description of the network and property to the _resources_ sub-folder 
-  * add the test to: _regress/regressLEVEL/CMakeLists.txt_ (where LEVEL is within 0-5) 
+The tests are divided into 5 levels to allow variability in running time, to add a new regression tests:
+  * add the description of the network and property to the _resources_ sub-folder
+  * add the test to: _regress/regressLEVEL/CMakeLists.txt_ (where LEVEL is within 0-5)
 In each build we run unit_tests and system_tests, on pull request we run regression 0 & 1, in the future we will run other levels of regression weekly / monthly. 
 
 Acknowledgments
@@ -275,17 +275,17 @@ People
 
 [Christopher Lazarus](https://profiles.stanford.edu/christopher-lazarus-garcia)
 
-[Kyle Julian](https://www.linkedin.com/in/kyjulian) 
+[Kyle Julian](https://www.linkedin.com/in/kyjulian)
 
 [Chelsea Sidrane](https://www.linkedin.com/in/chelseasidrane)
 
 [Parth Shah](https://www.linkedin.com/in/parthshah1995)
 
-[Shantanu Thakoor](https://in.linkedin.com/in/shantanu-thakoor-4b2630142) 
+[Shantanu Thakoor](https://in.linkedin.com/in/shantanu-thakoor-4b2630142)
 
 [Rachel Lim](https://rachellim.github.io/)
 
-Derek A. Huang 
+Derek A. Huang
 
 Duligur Ibeling
 
