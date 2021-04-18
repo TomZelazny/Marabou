@@ -15,6 +15,7 @@
 
 #include "DeepPolyReLUElement.h"
 #include "FloatUtils.h"
+#include "Heuristics.h"
 
 namespace NLR {
 
@@ -84,30 +85,17 @@ void DeepPolyReLUElement::execute( const Map<unsigned, DeepPolyElement *>
             _symbolicUb[i] = coeff;
             _symbolicUpperBias[i] = -sourceLb * coeff;
             _ub[i] = sourceUb;
-
-            // For the lower bound, in general, x_f >= lambda * x_b, where
-            // 0 <= lambda <= 1, would be a sound lower bound. We
-            // use the heuristic described in section 4.1 of
-            // https://files.sri.inf.ethz.ch/website/papers/DeepPoly.pdf
-            // to set the value of lambda (either 0 or 1 is considered).
-            if ( sourceUb > -sourceLb )
-            {
-                // lambda = 1
-                // Symbolic lower bound: x_f >= x_b
-                // Concrete lower bound: x_f >= sourceLb
-                _symbolicLb[i] = 1;
-                _symbolicLowerBias[i] = 0;
-                _lb[i] = sourceLb;
-            }
-            else
-            {
-                // lambda = 1
-                // Symbolic lower bound: x_f >= 0
-                // Concrete lower bound: x_f >= 0
-                _symbolicLb[i] = 0;
-                _symbolicLowerBias[i] = 0;
-                _lb[i] = 0;
-            }
+            DeepPolyLbHeuristics::defaultLb(i,
+                                            sourceUb,
+                                            sourceLb,
+                                            _symbolicLb,
+                                            _symbolicLowerBias,
+                                            _lb);
+            // DeepPolyLbHeuristics::randomCoeffLb(i,
+            //                                     sourceLb,
+            //                                     _symbolicLb,
+            //                                     _symbolicLowerBias,
+            //                                     _lb);
         }
         log( Stringf( "Neuron%u LB: %f b + %f, UB: %f b + %f",
                       i, _symbolicLb[i], _symbolicLowerBias[i],
