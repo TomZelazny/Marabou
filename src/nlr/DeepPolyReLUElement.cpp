@@ -85,17 +85,17 @@ void DeepPolyReLUElement::execute( const Map<unsigned, DeepPolyElement *>
             _symbolicUb[i] = coeff;
             _symbolicUpperBias[i] = -sourceLb * coeff;
             _ub[i] = sourceUb;
-            DeepPolyLbHeuristics::defaultLb(i,
-                                            sourceUb,
-                                            sourceLb,
-                                            _symbolicLb,
-                                            _symbolicLowerBias,
-                                            _lb);
-            // DeepPolyLbHeuristics::randomCoeffLb(i,
-            //                                     sourceLb,
-            //                                     _symbolicLb,
-            //                                     _symbolicLowerBias,
-            //                                     _lb);
+            // DeepPolyLbHeuristics::defaultLb(i,
+            //                                 sourceUb,
+            //                                 sourceLb,
+            //                                 _symbolicLb,
+            //                                 _symbolicLowerBias,
+            //                                 _lb);
+            DeepPolyLbHeuristics::randomCoeffLb(i,
+                                                sourceLb,
+                                                _symbolicLb,
+                                                _symbolicLowerBias,
+                                                _lb);
         }
         log( Stringf( "Neuron%u LB: %f b + %f, UB: %f b + %f",
                       i, _symbolicLb[i], _symbolicLowerBias[i],
