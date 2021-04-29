@@ -23,6 +23,7 @@
 #include "OptionParser.h"
 #include "SnCDivideStrategy.h"
 #include "SymbolicBoundTighteningType.h"
+#include "DeepPolyHeuristicType.h"
 
 #include "boost/program_options.hpp"
 
@@ -93,6 +94,7 @@ public:
         SPLITTING_STRATEGY,
         SNC_SPLITTING_STRATEGY,
         SYMBOLIC_BOUND_TIGHTENING_TYPE,
+        DEEPPOLY_LB_HEURISTIC,
         MILP_SOLVER_BOUND_TIGHTENING_TYPE,
         QUERY_DUMP_FILE,
     };
@@ -122,6 +124,7 @@ public:
     DivideStrategy getDivideStrategy() const;
     SnCDivideStrategy getSnCDivideStrategy() const;
     SymbolicBoundTighteningType getSymbolicBoundTighteningType() const;
+    DeepPolyHeuristicType getDeepPolyHeuristicType() const;
     MILPSolverBoundTighteningType getMILPSolverBoundTighteningType() const;
 
     /*

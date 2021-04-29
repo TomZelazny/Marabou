@@ -197,6 +197,7 @@ struct MarabouOptions {
         , _splittingStrategyString( Options::get()->getString( Options::SPLITTING_STRATEGY ).ascii() )
         , _sncSplittingStrategyString( Options::get()->getString( Options::SNC_SPLITTING_STRATEGY ).ascii() )
         , _tighteningStrategyString( Options::get()->getString( Options::SYMBOLIC_BOUND_TIGHTENING_TYPE ).ascii() )
+        , _deepPolyLBHeuristicString( Options::get()->getString( Options::DEEPPOLY_LB_HEURISTIC ).ascii() )
         , _milpTighteningString( Options::get()->getString( Options::MILP_SOLVER_BOUND_TIGHTENING_TYPE ).ascii() )
     {};
 
@@ -227,6 +228,7 @@ struct MarabouOptions {
     Options::get()->setString( Options::SPLITTING_STRATEGY, _splittingStrategyString );
     Options::get()->setString( Options::SNC_SPLITTING_STRATEGY, _sncSplittingStrategyString );
     Options::get()->setString( Options::SYMBOLIC_BOUND_TIGHTENING_TYPE, _tighteningStrategyString );
+    Options::get()->setString( Options::DEEPPOLY_LB_HEURISTIC, _deepPolyLBHeuristicString );
     Options::get()->setString( Options::MILP_SOLVER_BOUND_TIGHTENING_TYPE, _milpTighteningString );
   }
 
@@ -248,6 +250,7 @@ struct MarabouOptions {
     std::string _splittingStrategyString;
     std::string _sncSplittingStrategyString;
     std::string _tighteningStrategyString;
+    std::string _deepPolyLBHeuristicString;
     std::string _milpTighteningString;
 };
 
@@ -479,6 +482,7 @@ PYBIND11_MODULE(MarabouCore, m) {
         .def_readwrite("_splittingStrategy", &MarabouOptions::_splittingStrategyString)
         .def_readwrite("_sncSplittingStrategy", &MarabouOptions::_sncSplittingStrategyString)
         .def_readwrite("_tighteningStrategy", &MarabouOptions::_tighteningStrategyString)
+        .def_readwrite("_deepPolyLBHeuristic", &MarabouOptions::_deepPolyLBHeuristicString)
         .def_readwrite("_milpTightening", &MarabouOptions::_milpTighteningString)
         .def_readwrite("_numSimulations", &MarabouOptions::_numSimulations);
     py::enum_<PiecewiseLinearFunctionType>(m, "PiecewiseLinearFunctionType")

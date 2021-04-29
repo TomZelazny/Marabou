@@ -78,6 +78,7 @@ void Options::initializeDefaultValues()
     _stringOptions[SPLITTING_STRATEGY] = "";
     _stringOptions[SNC_SPLITTING_STRATEGY] = "";
     _stringOptions[SYMBOLIC_BOUND_TIGHTENING_TYPE] = "";
+    _stringOptions[DEEPPOLY_LB_HEURISTIC] = "";
     _stringOptions[MILP_SOLVER_BOUND_TIGHTENING_TYPE] = "";
     _stringOptions[QUERY_DUMP_FILE] = "";
 }
@@ -171,6 +172,20 @@ SymbolicBoundTighteningType Options::getSymbolicBoundTighteningType() const
         return SymbolicBoundTighteningType::NONE;
     else
         return SymbolicBoundTighteningType::DEEP_POLY;
+}
+
+DeepPolyHeuristicType Options::getDeepPolyHeuristicType() const
+{
+    String strategyString =
+        String( _stringOptions.get( Options::DEEPPOLY_LB_HEURISTIC ) );
+    if ( strategyString == "default" )
+        return DeepPolyHeuristicType::DEFAULT;
+    else if ( strategyString == "random" )
+        return DeepPolyHeuristicType::RANDOM;
+    else if ( strategyString == "nothing" )
+        return DeepPolyHeuristicType::NOTHING;
+    else
+        return DeepPolyHeuristicType::DEFAULT;
 }
 
 MILPSolverBoundTighteningType Options::getMILPSolverBoundTighteningType() const

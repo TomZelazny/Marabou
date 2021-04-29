@@ -75,6 +75,9 @@ void OptionParser::initialize()
         ( "tightening-strategy",
           boost::program_options::value<std::string>( &((*_stringOptions)[Options::SYMBOLIC_BOUND_TIGHTENING_TYPE]) ),
           "type of bound tightening technique to use: sbt/deeppoly/none. default: deeppoly" )
+        ( "lower-bound-heuristic",
+          boost::program_options::value<std::string>( &((*_stringOptions)[Options::DEEPPOLY_LB_HEURISTIC]) ),
+          "type of heuristic to use for deeppoly lower bound: default/random/nothing. default: default" )
         ( "initial-divides",
           boost::program_options::value<int>( &((*_intOptions)[Options::NUM_INITIAL_DIVIDES]) ),
           "(SnC) Number of times to initially bisect the input region" )
