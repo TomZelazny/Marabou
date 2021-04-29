@@ -38,7 +38,6 @@
 #include "SmtCore.h"
 #include "Statistics.h"
 #include "SymbolicBoundTighteningType.h"
-#include "DeepPolyHeuristicType.h"
 
 #include <atomic>
 
@@ -339,11 +338,6 @@ private:
       Type of symbolic bound tightening
     */
     SymbolicBoundTighteningType _symbolicBoundTighteningType;
-
-    /*
-      Type of symbolic bound tightening
-    */
-    DeepPolyHeuristicType _deepPolyHeuristicType;
 
     /*
       Disjunction that is used for splitting but doesn't exist in the beginning
